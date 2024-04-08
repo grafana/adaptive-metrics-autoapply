@@ -1,0 +1,25 @@
+on: 
+  schedule:
+    - cron: '0 4 * * *'
+
+jobs: 
+  autoapply:
+    runs-on: ubuntu-latest
+    name: Auto-apply the latest Adaptive Metrics recommendations
+    env:
+      GRAFANA_AM_API_URL: ${{ secrets.grafana_am_api_url }}
+      GRAFANA_AM_API_KEY: ${{ secrets.grafana_am_api_key }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Auto-apply
+        uses: ./
+        id: autoapply
+      - name: Commit and push changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m 'Auto-apply updated aggregation rules.'
+          git push 
+
