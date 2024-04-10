@@ -18,8 +18,7 @@ output "recommendations" {
 
 resource "grafana-adaptive-metrics_rule" "recommendations" {
   for_each = {
-    for rec in data.grafana-adaptive-metrics_recommendations.all.recommendations :
-    rec.metric => rec
+    for rec in data.grafana-adaptive-metrics_recommendations.all.recommendations : rec.metric => rec
   }
 
   metric               = each.value.metric

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 set -euf -o pipefail
 
@@ -11,6 +11,9 @@ command -v terraform > /dev/null 2>&1 || {
   echo 'Missing required dependency terraform'
   exit 1
 }
+
+# In case this is the first time, initialize terraform (it's safe to run this multiple times).
+terraform init
 
 # Auto-apply the latest recommendations.
 terraform apply -auto-approve
