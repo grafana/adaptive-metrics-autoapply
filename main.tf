@@ -29,4 +29,8 @@ resource "grafana-adaptive-metrics_rule" "recommendations" {
   aggregations         = each.value.aggregations
   aggregation_interval = each.value.aggregation_interval
   aggregation_delay    = each.value.aggregation_delay
+
+  # We set auto_import=true to tell the provider to automatically import any
+  # existing rules into Terraform state.
+  auto_import = true
 }
