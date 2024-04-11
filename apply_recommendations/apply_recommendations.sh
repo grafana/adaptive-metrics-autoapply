@@ -19,6 +19,6 @@ terraform init
 terraform apply -auto-approve
 
 # Output those recommendations as something human-readable.
-terraform output -json recommendations \
+terraform output -json rules \
   | jq 'map({metric, match_type, aggregations, drop, drop_labels, keep_labels, aggregation_delay, aggregation_interval}) | sort_by(.metric)' \
   > rules.json

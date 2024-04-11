@@ -1,0 +1,5 @@
+name: 'Grafana Adaptive Metrics Auto-apply (Apply Recommendations)'
+description: 'Apply your Adaptive Metrics recommendations.'
+runs:
+    using: 'docker'
+    image: 'Dockerfile'

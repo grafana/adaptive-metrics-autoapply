@@ -1,0 +1,30 @@
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *'
+
+jobs: 
+  autoapply:
+    runs-on: ubuntu-latest
+    name: Pull the latest Adaptive Metrics recommendations
+    env:
+      GRAFANA_AM_API_URL: ${{ secrets.grafana_am_api_url }}
+      GRAFANA_AM_API_KEY: ${{ secrets.grafana_am_api_key }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Pull recommendations
+        uses: ./pull_recommendations
+        id: pull_recommendations
+      - name: Create pull request
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: Scheduled refresh of the latest recommendations.
+          commit-message: Scheduled refresh of the latest recommendations.
+          body: Scheduled refresh of the latest recommendations.
+      - name: Enable pull request auto-merge
+        if: steps.cpr.outputs.pull-request-operation == 'created' && env.GH_TOKEN != ''
+        run: gh pr merge --merge --auto "${{ steps.cpr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ secrets.automerge_pat }}
