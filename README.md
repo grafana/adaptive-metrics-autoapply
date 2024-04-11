@@ -1,4 +1,4 @@
-# adaptive-metrics-autoapply
+# Auto-apply for Grafana Adaptive Metrics
 
 A template repository for enabling auto-apply of Adaptive Metrics recommendations.
 
