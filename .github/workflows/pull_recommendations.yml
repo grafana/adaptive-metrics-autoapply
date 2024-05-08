@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Pull the latest Adaptive Metrics recommendations
     env:
-      GRAFANA_AM_API_URL: ${{ secrets.grafana_am_api_url }}
+      GRAFANA_AM_API_URL: ${{ vars.grafana_am_api_url }}
       GRAFANA_AM_API_KEY: ${{ secrets.grafana_am_api_key }}
     steps:
       - name: Checkout

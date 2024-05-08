@@ -4,13 +4,17 @@ A template repository for enabling auto-apply of Adaptive Metrics recommendation
 
 ## Getting started
 
-To start, create a new repository by navigating to "Use this template" -> "Create a new repository" up top.
+To start, create a new repository by navigating to "Use this template" → "Create a new repository" at the top right of the repository page.
 
-Add the following secrets to the new repository ("Settings" -> "Secrets and variables" -> "Actions" -> "New repository secret"):
+Add the following variable to the new repository ("Settings" → "Secrets and variables" → "Actions" → "Variables" → " New repository variable")
 
-- `grafana_am_api_url`: This is your Grafana Cloud prometheus URL. To find this URL, go to your `grafana.com` account and check the **Details** page of your hosted Prometheus endpoint.
-- `grafana_am_api_key`: This looks like `<your-numeric-instance-id>:<your-cloud-access-policy-token>`.
-    - `<your-numeric-instance-id>` is the numeric instance ID where you want to enable auto-apply of your Adaptive Metrics. To find this value, go to your `grafana.com` account and check the **Details** page of your hosted Prometheus endpoint for **Username/Instance ID**.
+- `grafana_am_api_url`: This is your Grafana Cloud prometheus URL. To find this URL, go to your `grafana.com` account (https://grafana.com → "My Account") and click on the "Details" button of your Grafana Cloud Prometheus stack.
+  The URL is listed at the top of the page next to the Prometheus icon. **Make sure to use only the host part of this URL, e.g. remove anything after `grafana.net`**.
+
+Add the following secrets to the new repository ("Settings" → "Secrets and variables" → "Actions" → "New repository secret"):
+
+- `grafana_am_api_key`: This must be specified in the format `<your-numeric-instance-id>:<your-cloud-access-policy-token>`, where
+    - `<your-numeric-instance-id>` is the numeric instance ID for which you want to enable auto-apply of your Adaptive Metrics. This value can be found in the "Query Endpoint" section of the Details page under "Username / Instance ID".
     - `<your-cloud-access-policy-token>` is a token from a [Grafana Cloud Access Policy](https://grafana.com/docs/grafana-cloud/account-management/authentication-and-permissions/access-policies/). Make sure the access policy has `metrics:read` and `metrics:write` scopes for the appropriate stack ID.
 - `automerge_pat`: Optionally, provide a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) to enable auto-apply of new recommendations. Without this, a PR will be opened with the latest recommendations, but that PR will still require a manual merge to take effect. **The personal access token should have access to the repo and read/write permissions for "Pull Requests" and "Contents" enabled.**
 
