@@ -17,6 +17,15 @@ Add the following secret to the new repository ("Settings" → "Secrets and vari
     - `<your-numeric-instance-id>` is the numeric instance ID for which you want to enable auto-apply of your Adaptive Metrics. This value can be found in the "Query Endpoint" section of the Details page under "Username / Instance ID".
     - `<your-cloud-access-policy-token>` is a token from a [Grafana Cloud Access Policy](https://grafana.com/docs/grafana-cloud/account-management/authentication-and-permissions/access-policies/). Make sure the access policy has `metrics:read` and `metrics:write` scopes for the appropriate stack ID.
 
+## Enable auto-merge (optional)
+
+Once the above configuration is set up, you can manually run the workflow named "Pull Adaptive Metrics recommendations".
+By default, this will create a PR with the current recommendations.
+Once you merge this PR, the corresponding set of aggregation rules is automatically created.
+
+To skip the manual PR review and merge step, you can define a repository variable named `grafana_am_automerge_enabled` with value `true`.
+This will make the workflow automatically merge the pull request it creates.
+
 ## What to expect
 
 By default, auto-apply is scheduled to run at 04:00 UTC Monday to Friday. This can be configured by editing the schedule time in `.github/workflows/pull_recommendations.yml`.
