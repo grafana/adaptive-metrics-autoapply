@@ -29,10 +29,9 @@ This will make the workflow automatically merge the pull request it creates.
 ## What to expect
 
 By default, auto-apply is scheduled to run at 04:00 UTC Monday to Friday. This can be configured by editing the schedule time in `.github/workflows/pull_recommendations.yml`.
+At the scheduled time, the GitHub Action will pull the latest recommendations and create (and if enabled merge) a pull request titled "Scheduled refresh of the latest recommendations." with the changes.
 
-At the scheduled time, the GitHub Action will pull the latest recommendations and create/merge a pull request titled "Scheduled refresh of the latest recommendations." with the changes.
-
-Once the pull request is merged, the`rules.json`, `.terraform.lock.hcl`, and `terraform.tfstate` files will all be committed and pushed to main with the commit message "Auto-apply updated aggregation rules.".
+Once the pull request is merged, the`rules.json`, `.terraform.lock.hcl`, and `terraform.tfstate` files will be created or updated and pushed to main with the commit message "Auto-apply updated aggregation rules.".
 
 ## Controlling your recommendations
 
