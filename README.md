@@ -17,6 +17,8 @@ Add the following secret to the new repository ("Settings" → "Secrets and vari
     - `<your-numeric-instance-id>` is the numeric instance ID for which you want to enable auto-apply of your Adaptive Metrics. This value can be found in the "Query Endpoint" section of the Details page under "Username / Instance ID".
     - `<your-cloud-access-policy-token>` is a token from a [Grafana Cloud Access Policy](https://grafana.com/docs/grafana-cloud/account-management/authentication-and-permissions/access-policies/). Make sure the access policy has `metrics:read` and `metrics:write` scopes for the appropriate stack ID.
 
+Once you have added the required variables and secrets, go to "Settings" → "Actions" → "General" → "Workflow permissions" and enable the checkbox for "Allow Github Actions to create and approve pull requests", Then click "Save".
+
 ## Enable auto-merge (optional)
 
 Once the above configuration is set up, you can manually run the workflow named "Pull Adaptive Metrics recommendations".
