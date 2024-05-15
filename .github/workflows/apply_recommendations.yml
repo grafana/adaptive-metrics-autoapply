@@ -1,22 +1,29 @@
-on: 
+name: Apply Adaptive Metrics recommendations
+
+on:
   workflow_dispatch:
   push:
     branches:
       - 'main'
+    paths:
+      - 'recommendations.json'
+      - 'main.tf'
 
-jobs: 
+jobs:
   autoapply:
     runs-on: ubuntu-latest
     name: Apply Adaptive Metrics recommendations
+    permissions:
+      contents: write
+      pull-requests: write
     env:
-      GRAFANA_AM_API_URL: ${{ secrets.grafana_am_api_url }}
+      GRAFANA_AM_API_URL: ${{ vars.grafana_am_api_url }}
       GRAFANA_AM_API_KEY: ${{ secrets.grafana_am_api_key }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Apply recommendations
         uses: ./apply_recommendations
-        id: apply_recommendations
       - name: Commit and push changes
         run: |
           git config user.name github-actions
@@ -24,4 +31,3 @@ jobs:
           git add .
           git commit -m 'Auto-apply updated aggregation rules.' || exit 0
           git push 
-
