@@ -13,7 +13,7 @@ After the pull request is merged, the GitHub Action creates or updates the follo
 - `.terraform.lock.hcl`
 - `terraform.tfstate`
 
-## Enable auto-apply mode
+## Automatically apply recommendations
 
 Automatically apply Adaptive Metrics recommendations in Grafana Cloud.
 
@@ -36,7 +36,7 @@ After you set up this configuration, you can manually run the workflow named "Pu
 By default, this workflow creates a pull request with the latest recommendations.
 After you merge this pull request, the corresponding set of aggregation rules is automatically created.
 
-## (Optional) Enable auto-merge mode
+## (Optional) Automatically merge rules
 
 You can enable auto-merge mode to skip the manual pull request review and merge processes. To automatically merge the pull request containing the latest set of aggregation rules, define the following variable in your repository:
 
@@ -44,9 +44,9 @@ You can enable auto-merge mode to skip the manual pull request review and merge 
 
 ## Control your recommendations
 
-To control your recommendations, exemptions resources can be added to the `main.tf` file. See [grafana-adaptive-metrics_exemption (Resource)](https://registry.terraform.io/providers/grafana/grafana-adaptive-metrics/latest/docs) for more information.
+You can add exemptions resources to the `main.tf` file to control your recommendations. Refer to [grafana-adaptive-metrics_exemption (Resource)](https://registry.terraform.io/providers/grafana/grafana-adaptive-metrics/latest/docs) for more information.
 
-The new Terraform will be automatically applied when the changes are pushed to `main`.
+Pushing changes to the `main` branch automatically applies the new Terraform settings.
 
 ## See also
 
