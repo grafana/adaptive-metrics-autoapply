@@ -3,7 +3,22 @@ name: Pull Adaptive Metrics recommendations
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 4 * * 1-5'
+    - cron: "0 4 * * 1-5"
+  workflow_call:
+    inputs:
+      grafana_am_api_url:
+        description: "The URL of the Adaptive Metrics API."
+        required: true
+        type: string
+      grafana_am_automerge_enabled:
+        description: "Whether to enable auto-merge for the pull request."
+        required: false
+        default: false
+        type: boolean
+    secrets:
+      grafana_am_api_key:
+        description: "The API key for the Adaptive Metrics API."
+        required: true
 
 jobs:
   autoapply:
