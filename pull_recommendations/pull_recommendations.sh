@@ -12,8 +12,10 @@ command -v jq > /dev/null 2>&1 || {
   exit 1
 }
 
+DESTINATION_FILE="${DESTINATION_FILE:-recommendations.json}"
+
 USER_AGENT="${USER_AGENT:-gh-action-autoapply}"
 
 curl -u "$GRAFANA_AM_API_KEY" --user-agent "$USER_AGENT" "$GRAFANA_AM_API_URL/aggregations/recommendations?verbose=false" \
   | jq 'sort_by(.metric)' \
-  > recommendations.json
+  > $DESTINATION_FILE

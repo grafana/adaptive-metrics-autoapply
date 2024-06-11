@@ -12,6 +12,11 @@ on:
         required: false
         default: false
         type: boolean
+      destination_file:
+        description: "The file to write the recommendations to."
+        required: false
+        default: "recommendations.json"
+        type: string
     secrets:
       grafana_am_api_key:
         description: "The API key for the Adaptive Metrics API."
@@ -27,6 +32,7 @@ jobs:
     env:
       GRAFANA_AM_API_URL: ${{ inputs.grafana_am_api_url }}
       GRAFANA_AM_API_KEY: ${{ secrets.grafana_am_api_key }}
+      DESTINATION_FILE: ${{ inputs.destination_file }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
