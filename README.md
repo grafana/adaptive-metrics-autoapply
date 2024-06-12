@@ -10,7 +10,7 @@ By default, auto-apply mode runs at 04:00 UTC Monday through Friday. To configur
 
 At the scheduled time, the GitHub Action pulls the latest recommendations and creates a pull request named "Scheduled refresh of the latest recommendations".
 
-After you merge the pull request, the GitHub Action creates or updates the following files and pushes them to the `main` branch with the commit message, "Auto-apply updated aggregation rules":
+After you merge this pull request, the GitHub Action creates or updates the following files and pushes them to the `main` branch with the commit message, "Auto-apply updated aggregation rules":
 
 - `rules.json`
 - `.terraform.lock.hcl`
@@ -28,7 +28,7 @@ Set up a GitHub Action to automatically apply Adaptive Metrics recommendations i
 
     - `grafana_am_api_url`: This is your Grafana Cloud Prometheus URL. To find this URL, go to your `grafana.com` account (https://grafana.com → "My Account") and click on the "Details" button of your Grafana Cloud Prometheus stack.
   The URL is listed at the top of the page next to the Prometheus icon. 
-      > Make sure to use only the host part of this URL, e.g. remove anything after `grafana.net`.
+      > Make sure to use only the host part of this URL. Remove any parameters after `grafana.net`.
 
 3. Go to "Settings" → "Secrets and variables" → "Actions" → "New repository secret" and add the following secret to the new repository:
 
