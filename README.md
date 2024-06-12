@@ -2,6 +2,8 @@
 
 Use this template repository to set up auto-apply mode for Adaptive Metrics in Grafana Cloud.
 
+> Auto-apply mode for Adaptive Metrics is currently in [public preview](https://grafana.com/docs/release-life-cycle/). This feature is still under development and support is limited at this time.
+
 ## What to expect
 
 By default, auto-apply mode runs at 04:00 UTC Monday through Friday. To configure this setting, edit the `schedule` parameter in the `.github/workflows/pull_recommendations.yml` file.
@@ -57,4 +59,4 @@ Pushing changes to the `main.tf` file automatically applies the new Terraform se
 - [Grafana Adaptive Metrics](https://grafana.com/docs/grafana-cloud/cost-management-and-billing/reduce-costs/metrics-costs/control-metrics-usage-via-adaptive-metrics/)
 - [Grafana Adaptive Metrics Terraform provider](https://registry.terraform.io/providers/grafana/grafana-adaptive-metrics/latest/docs)
 
-Feedback?
+Have feedback about this feature? Open an issue to let the team know!
