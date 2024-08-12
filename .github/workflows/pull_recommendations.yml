@@ -35,7 +35,7 @@ jobs:
           commit-message: Scheduled refresh of the latest recommendations.
           body: Scheduled refresh of the latest recommendations.
       - name: Enable pull request auto-merge
-        if: ${{ steps.cpr.outputs.pull-request-operation == 'created' && inputs.grafana_am_automerge_enabled }}
+        if: ${{ steps.cpr.outputs.pull-request-operation == 'created' && env.GH_TOKEN != '' }}
         run: gh pr merge --merge --auto "${{ steps.cpr.outputs.pull-request-number }}"
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.automerge_pat }}
