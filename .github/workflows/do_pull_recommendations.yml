@@ -1,0 +1,16 @@
+name: Pull Adaptive Metrics recommendations
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * 1-5'
+
+jobs:
+  do-autoapply:
+    name: Pull the latest Adaptive Metrics recommendations
+    uses: ./.github/workflows/pull_recommendations.yml
+    with:
+      grafana_am_api_url: ${{ vars.grafana_am_api_url }}
+      grafana_am_automerge_enabled: ${{ vars.grafana_am_automerge_enabled == 'true'}}
+    secrets:
+      grafana_am_api_key: ${{ secrets.grafana_am_api_key }}

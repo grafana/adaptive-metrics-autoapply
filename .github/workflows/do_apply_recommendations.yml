@@ -1,0 +1,19 @@
+name: Apply Adaptive Metrics recommendations
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'recommendations.json'
+      - 'main.tf'
+
+jobs:
+  do-autoapply:
+    name: Apply Adaptive Metrics recommendations
+    uses: ./.github/workflows/apply_recommendations.yml
+    with:
+      grafana_am_api_url: ${{ vars.grafana_am_api_url }}
+    secrets:
+      grafana_am_api_key: ${{ secrets.grafana_am_api_key }}
