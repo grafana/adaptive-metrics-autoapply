@@ -13,7 +13,6 @@ on:
 jobs:
   autoapply:
     runs-on: ubuntu-latest
-    name: Apply Adaptive Metrics recommendations
     permissions:
       contents: write
       pull-requests: write

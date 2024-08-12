@@ -1,4 +1,4 @@
-name: Pull Adaptive Metrics recommendations
+name: Scheduled refresh of Adaptive Metrics recommendations
 
 on:
   workflow_dispatch:
@@ -7,7 +7,6 @@ on:
 
 jobs:
   do-autoapply:
-    name: Pull the latest Adaptive Metrics recommendations
     uses: ./.github/workflows/pull_recommendations.yml
     with:
       grafana_am_api_url: ${{ vars.grafana_am_api_url }}

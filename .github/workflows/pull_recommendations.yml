@@ -15,7 +15,6 @@ on:
 jobs:
   autoapply:
     runs-on: ubuntu-latest
-    name: Pull the latest Adaptive Metrics recommendations
     permissions:
       contents: write
       pull-requests: write
