@@ -1,19 +1,25 @@
 name: Pull Adaptive Metrics recommendations
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 4 * * 1-5'
+  workflow_call:
+    inputs:
+      grafana_am_api_url:
+        required: true
+        type: string
+      grafana_am_automerge_enabled:
+        type: boolean
+    secrets:
+      grafana_am_api_key:
+        required: true
 
 jobs:
   autoapply:
     runs-on: ubuntu-latest
-    name: Pull the latest Adaptive Metrics recommendations
     permissions:
       contents: write
       pull-requests: write
     env:
-      GRAFANA_AM_API_URL: ${{ vars.grafana_am_api_url }}
+      GRAFANA_AM_API_URL: ${{ inputs.grafana_am_api_url }}
       GRAFANA_AM_API_KEY: ${{ secrets.grafana_am_api_key }}
     steps:
       - name: Checkout
@@ -29,7 +35,7 @@ jobs:
           commit-message: Scheduled refresh of the latest recommendations.
           body: Scheduled refresh of the latest recommendations.
       - name: Enable pull request auto-merge
-        if: ${{ steps.cpr.outputs.pull-request-operation == 'created' && vars.grafana_am_automerge_enabled == 'true' }}
+        if: ${{ steps.cpr.outputs.pull-request-operation == 'created' && inputs.grafana_am_automerge_enabled }}
         run: gh pr merge --merge --auto "${{ steps.cpr.outputs.pull-request-number }}"
         env:
           GH_TOKEN: ${{ github.token }}

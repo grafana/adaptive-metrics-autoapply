@@ -1,23 +1,23 @@
 name: Apply Adaptive Metrics recommendations
 
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - 'main'
-    paths:
-      - 'recommendations.json'
-      - 'main.tf'
+  workflow_call:
+    inputs:
+      grafana_am_api_url:
+        required: true
+        type: string
+    secrets:
+      grafana_am_api_key:
+        required: true
 
 jobs:
   autoapply:
     runs-on: ubuntu-latest
-    name: Apply Adaptive Metrics recommendations
     permissions:
       contents: write
       pull-requests: write
     env:
-      GRAFANA_AM_API_URL: ${{ vars.grafana_am_api_url }}
+      GRAFANA_AM_API_URL: ${{ inputs.grafana_am_api_url }}
       GRAFANA_AM_API_KEY: ${{ secrets.grafana_am_api_key }}
     steps:
       - name: Checkout
