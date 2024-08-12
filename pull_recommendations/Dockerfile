@@ -1,7 +1,14 @@
-FROM alpine:3.14
+FROM golang:1.22.5-bookworm AS build
 
-RUN apk add --no-cache jq curl
+COPY . /opt
+WORKDIR /opt
 
-COPY --chmod=755 pull_recommendations.sh /opt/pull_recommendations.sh
+RUN CGO_ENABLED=0 GOOS=linux go build -o /pull-recommendations cmd/pull/main.go
 
-ENTRYPOINT ["/opt/pull_recommendations.sh"]
+FROM gcr.io/distroless/base-debian11
+
+WORKDIR /
+
+COPY --from=build /pull-recommendations /pull-recommendations
+
+ENTRYPOINT ["/pull-recommendations", "--write-segments"]

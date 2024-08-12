@@ -10,6 +10,6 @@ jobs:
     uses: ./.github/workflows/pull_recommendations.yml
     with:
       grafana_am_api_url: ${{ vars.grafana_am_api_url }}
-      grafana_am_automerge_enabled: ${{ vars.grafana_am_automerge_enabled == 'true'}}
     secrets:
       grafana_am_api_key: ${{ secrets.grafana_am_api_key }}
+      automerge_pat: ${{ secrets.automerge_pat }}
