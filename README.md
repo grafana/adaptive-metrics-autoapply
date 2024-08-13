@@ -20,7 +20,7 @@ You can also set the pull request to merge automatically.
 
 ## Automatically apply recommendations
 
-Set up a GitHub Action to automatically apply Adaptive Metrics recommendations in Grafana Cloud.
+Create a new repository using this one as a template to automatically apply Adaptive Metrics recommendations in Grafana Cloud.
 
 1. Create a new repository by navigating to "Use this template" → "Create a new repository" at the top-right of the repository page in GitHub.
 
@@ -44,9 +44,13 @@ After you merge this pull request, the workflow automatically creates the corres
 
 ## (Optional) Automatically merge rules
 
-You can enable auto-merge mode to skip the manual pull request review and merge processes. To automatically merge the pull request containing the latest set of aggregation rules, define the following variable in your repository:
+You can enable auto-merge mode to skip the manual pull request review and merge processes.
 
-    grafana_am_automerge_enabled = true
+1. Create a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). The personal access token should have access to the repo and read/write permissions for "Pull Requests" and "Contents" enabled.
+
+2. Go to "Settings" → "Secrets and variables" → "Actions" → "New repository secret" and add the following secret to the new repository:
+
+    - `automerge_pat`: This is the personal access token you created in the previous step.
 
 ## Control your recommendations
 
