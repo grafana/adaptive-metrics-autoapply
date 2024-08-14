@@ -6,11 +6,10 @@ on:
       grafana_am_api_url:
         required: true
         type: string
-      grafana_am_automerge_enabled:
-        type: boolean
     secrets:
       grafana_am_api_key:
         required: true
+      automerge_pat:
 
 jobs:
   autoapply:

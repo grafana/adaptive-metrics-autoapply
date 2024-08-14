@@ -12,7 +12,6 @@ At the scheduled time, the GitHub Action pulls the latest recommendations and cr
 
 After you merge this pull request, the GitHub Action creates or updates the following files and pushes them to the `main` branch with the commit message, "Auto-apply updated aggregation rules":
 
-- `rules.json`
 - `.terraform.lock.hcl`
 - `terraform.tfstate`
 

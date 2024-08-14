@@ -1,7 +1,14 @@
-FROM hashicorp/terraform:1.7
+FROM golang:1.22.5-bookworm AS build
 
-RUN apk add --no-cache jq
+COPY . /opt
+WORKDIR /opt
 
-COPY --chmod=755 apply_recommendations.sh /opt/apply_recommendations.sh
+RUN CGO_ENABLED=0 GOOS=linux go build -o /apply-recommendations cmd/apply/main.go
 
-ENTRYPOINT ["/opt/apply_recommendations.sh"]
+FROM gcr.io/distroless/base-debian11
+
+WORKDIR /
+
+COPY --from=build /apply-recommendations /apply-recommendations
+
+ENTRYPOINT ["/apply-recommendations"]
