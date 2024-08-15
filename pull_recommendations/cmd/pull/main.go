@@ -33,6 +33,7 @@ func main() {
 	}
 
 	if *writeSegments {
+		log.Printf("writing segments.json with %d segments", len(segments))
 		err = writeJSONToFile(filepath.Join(*workingDir, "segments.json"), segments)
 		if err != nil {
 			log.Fatalf("failed to write segments.json: %v", err)
@@ -50,14 +51,20 @@ func main() {
 		}
 
 		// Sort exact match rules first, then sort by metric name.
-		slices.SortFunc(recs, func(a, b internal.Recommendation) int {
+		slices.SortStableFunc(recs, func(a, b internal.Recommendation) int {
+			// If both are exact matches, sort by metric name.
+			if a.MatchType == "exact" && b.MatchType == "exact" {
+				return strings.Compare(a.Metric, b.Metric)
+			}
+			// Otherwise sort exact matches first
 			if a.MatchType != b.MatchType {
 				if a.MatchType == "exact" {
 					return -1
 				}
 				return 1
 			}
-			return strings.Compare(a.Metric, b.Metric)
+			// Otherwise don't change anything, since it may change the semantics of the ruleset.
+			return 0
 		})
 
 		// Write the recommendations to a file.
@@ -67,6 +74,7 @@ func main() {
 		} else {
 			filename = fmt.Sprintf("recommendations-%s.json", segment.Name)
 		}
+		log.Printf("writing recommendations for segment %s to %s with %d rules", segment.Name, filename, len(recs))
 		err = writeJSONToFile(filepath.Join(*workingDir, filename), recs)
 		if err != nil {
 			log.Fatalf("failed to write recommendations for segment %s: %v", segment.Name, err)
