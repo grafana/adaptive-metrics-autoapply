@@ -24,7 +24,12 @@ func main() {
 		}
 	}
 
-	workingDir := flag.String("working-dir", os.Getenv("INPUT_WORKING-DIR"), "The path to the working directory.")
+	defaultWorkingDir := "./"
+	if workingDirEnvVar := os.Getenv("INPUT_WORKING-DIR"); workingDirEnvVar != "" {
+		defaultWorkingDir = workingDirEnvVar
+	}
+
+	workingDir := flag.String("working-dir", defaultWorkingDir, "The path to the working directory.")
 	dryRun := flag.Bool("dry-run", defaultDryRun, "dry run; run terraform plan instead of terraform apply")
 	flag.Parse()
 
