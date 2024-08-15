@@ -53,12 +53,12 @@ func main() {
 		// Sort exact match rules first, then sort by metric name.
 		slices.SortStableFunc(recs, func(a, b internal.Recommendation) int {
 			// If both are exact matches, sort by metric name.
-			if a.MatchType == "exact" && b.MatchType == "exact" {
+			if isExactMatch(a) && isExactMatch(b) {
 				return strings.Compare(a.Metric, b.Metric)
 			}
 			// Otherwise sort exact matches first
 			if a.MatchType != b.MatchType {
-				if a.MatchType == "exact" {
+				if isExactMatch(a) {
 					return -1
 				}
 				return 1
@@ -80,6 +80,10 @@ func main() {
 			log.Fatalf("failed to write recommendations for segment %s: %v", segment.Name, err)
 		}
 	}
+}
+
+func isExactMatch(rule internal.Recommendation) bool {
+	return rule.MatchType == "exact" || rule.MatchType == ""
 }
 
 func mustGetEnv(key string) string {
