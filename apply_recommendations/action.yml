@@ -3,3 +3,7 @@ description: 'Apply your Adaptive Metrics recommendations.'
 runs:
     using: 'docker'
     image: 'Dockerfile'
+inputs:
+  working-dir:
+    default: '.'
+    description: 'The directory to run the apply in.'

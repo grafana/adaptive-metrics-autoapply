@@ -3,3 +3,7 @@ description: 'Pull your latest Adaptive Metrics recommendations.'
 runs:
     using: 'docker'
     image: 'Dockerfile'
+inputs:
+  working-dir:
+    default: '.'
+    description: 'The directory to place the recommendations in.'
