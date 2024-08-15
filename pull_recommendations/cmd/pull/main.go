@@ -15,7 +15,12 @@ import (
 )
 
 func main() {
-	workingDir := flag.String("working-dir", "./", "The path to the working directory.")
+	defaultWorkingDir := "./"
+	if workingDirEnvVar := os.Getenv("INPUT_WORKING-DIR"); workingDirEnvVar != "" {
+		defaultWorkingDir = workingDirEnvVar
+	}
+
+	workingDir := flag.String("working-dir", defaultWorkingDir, "The path to the working directory.")
 	userAgent := flag.String("user-agent", "gh-action-autoapply", "The user-agent to use when making requests against the API.")
 
 	writeSegments := flag.Bool("write-segments", false, "Optionally write a segments.json file to disk.")
@@ -33,6 +38,7 @@ func main() {
 	}
 
 	if *writeSegments {
+		log.Printf("writing segments.json with %d segments", len(segments))
 		err = writeJSONToFile(filepath.Join(*workingDir, "segments.json"), segments)
 		if err != nil {
 			log.Fatalf("failed to write segments.json: %v", err)
@@ -50,14 +56,20 @@ func main() {
 		}
 
 		// Sort exact match rules first, then sort by metric name.
-		slices.SortFunc(recs, func(a, b internal.Recommendation) int {
+		slices.SortStableFunc(recs, func(a, b internal.Recommendation) int {
+			// If both are exact matches, sort by metric name.
+			if isExactMatch(a) && isExactMatch(b) {
+				return strings.Compare(a.Metric, b.Metric)
+			}
+			// Otherwise sort exact matches first
 			if a.MatchType != b.MatchType {
-				if a.MatchType == "exact" {
+				if isExactMatch(a) {
 					return -1
 				}
 				return 1
 			}
-			return strings.Compare(a.Metric, b.Metric)
+			// Otherwise don't change anything, since it may change the semantics of the ruleset.
+			return 0
 		})
 
 		// Write the recommendations to a file.
@@ -67,11 +79,16 @@ func main() {
 		} else {
 			filename = fmt.Sprintf("recommendations-%s.json", segment.Name)
 		}
+		log.Printf("writing recommendations for segment %s to %s with %d rules", segment.Name, filename, len(recs))
 		err = writeJSONToFile(filepath.Join(*workingDir, filename), recs)
 		if err != nil {
 			log.Fatalf("failed to write recommendations for segment %s: %v", segment.Name, err)
 		}
 	}
+}
+
+func isExactMatch(rule internal.Recommendation) bool {
+	return rule.MatchType == "exact" || rule.MatchType == ""
 }
 
 func mustGetEnv(key string) string {

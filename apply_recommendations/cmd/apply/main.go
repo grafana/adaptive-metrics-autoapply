@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hc-install/product"
@@ -13,8 +14,23 @@ import (
 )
 
 func main() {
-	workingDir := flag.String("working-dir", "./", "path to working directory")
-	dryRun := flag.Bool("dry-run", false, "dry run; run terraform plan instead of terraform apply")
+
+	defaultDryRun := false
+	if dryRunEnvVar := os.Getenv("INPUT_DRY-RUN"); dryRunEnvVar != "" {
+		var err error
+		defaultDryRun, err = strconv.ParseBool(dryRunEnvVar)
+		if err != nil {
+			log.Fatalf("error parsing INPUT_DRY-RUN: %s", err)
+		}
+	}
+
+	defaultWorkingDir := "./"
+	if workingDirEnvVar := os.Getenv("INPUT_WORKING-DIR"); workingDirEnvVar != "" {
+		defaultWorkingDir = workingDirEnvVar
+	}
+
+	workingDir := flag.String("working-dir", defaultWorkingDir, "The path to the working directory.")
+	dryRun := flag.Bool("dry-run", defaultDryRun, "dry run; run terraform plan instead of terraform apply")
 	flag.Parse()
 
 	installer := &releases.ExactVersion{
@@ -31,6 +47,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("error running NewTerraform: %s", err)
 	}
+
+	tf.SetStderr(os.Stderr)
+	tf.SetStdout(os.Stdout)
 
 	err = tf.Init(context.Background(), tfexec.Upgrade(true))
 	if err != nil {
