@@ -5,5 +5,5 @@ runs:
     image: 'Dockerfile'
 inputs:
   working-dir:
-    default: '.'
+    default: './'
     description: 'The directory to place the recommendations in.'

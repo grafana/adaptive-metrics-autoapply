@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	workingDir := flag.String("working-dir", "./", "path to working directory")
+	workingDir := flag.String("working-dir", os.Getenv("INPUT_WORKING-DIR"), "The path to the working directory.")
 	dryRun := flag.Bool("dry-run", false, "dry run; run terraform plan instead of terraform apply")
 	flag.Parse()
 

@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	workingDir := flag.String("working-dir", "./", "The path to the working directory.")
+	workingDir := flag.String("working-dir", os.Getenv("INPUT_WORKING-DIR"), "The path to the working directory.")
 	userAgent := flag.String("user-agent", "gh-action-autoapply", "The user-agent to use when making requests against the API.")
 
 	writeSegments := flag.Bool("write-segments", false, "Optionally write a segments.json file to disk.")
