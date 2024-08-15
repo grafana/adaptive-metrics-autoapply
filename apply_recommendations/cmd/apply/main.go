@@ -32,6 +32,9 @@ func main() {
 		log.Fatalf("error running NewTerraform: %s", err)
 	}
 
+	tf.SetStderr(os.Stderr)
+	tf.SetStdout(os.Stdout)
+
 	err = tf.Init(context.Background(), tfexec.Upgrade(true))
 	if err != nil {
 		log.Fatalf("error running Init: %s", err)
