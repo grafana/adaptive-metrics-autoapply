@@ -2,6 +2,7 @@
 
 Use this template repository to set up auto-apply mode for Adaptive Metrics in Grafana Cloud.
 
+> [!NOTE]
 > Auto-apply mode for Adaptive Metrics is currently in [public preview](https://grafana.com/docs/release-life-cycle/). This feature is still under development and support is limited at this time.
 
 ## What to expect
