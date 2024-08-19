@@ -11,10 +11,7 @@ By default, auto-apply mode runs at 04:00 UTC Monday through Friday. To configur
 
 At the scheduled time, the GitHub Action pulls the latest recommendations and creates a pull request named "Scheduled refresh of the latest recommendations".
 
-After you merge this pull request, the GitHub Action creates or updates the following files and pushes them to the `main` branch with the commit message, "Auto-apply updated aggregation rules":
-
-- `.terraform.lock.hcl`
-- `terraform.tfstate`
+After you merge this pull request, the GitHub Action uploads the updated rules to Grafana Cloud.
 
 You can also set the pull request to merge automatically.
 
@@ -51,12 +48,6 @@ You can enable auto-merge mode to skip the manual pull request review and merge 
 2. Go to "Settings" → "Secrets and variables" → "Actions" → "New repository secret" and add the following secret to the new repository:
 
     - `automerge_pat`: This is the personal access token you created in the previous step.
-
-## Control your recommendations
-
-You can add exemptions resources to the `main.tf` file to control your recommendations. Refer to [grafana-adaptive-metrics_exemption (Resource)](https://registry.terraform.io/providers/grafana/grafana-adaptive-metrics/latest/docs) for more information.
-
-Pushing changes to the `main.tf` file automatically applies the new Terraform settings.
 
 ## See also
 
