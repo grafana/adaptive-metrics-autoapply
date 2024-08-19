@@ -3,7 +3,7 @@ FROM golang:1.22.5-bookworm AS build
 COPY . /opt
 WORKDIR /opt
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /adaptive-metrics-auto-apply cmd/apply/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /adaptive-metrics-auto-apply cmd/adaptive-metrics/main.go
 
 FROM gcr.io/distroless/base-debian11
 
