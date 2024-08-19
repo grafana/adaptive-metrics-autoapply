@@ -4,7 +4,7 @@ runs:
     using: 'docker'
     image: '../docker/Dockerfile'
     args:
-      - pull-recommendations
+      - pull
 inputs:
   working-dir:
     default: './'

@@ -11,7 +11,7 @@ func main() {
 	}
 
 	switch os.Args[1] {
-	case "pull-recommendations":
+	case "pull":
 		pull(os.Args[2:])
 	case "apply":
 		apply(os.Args[2:])
