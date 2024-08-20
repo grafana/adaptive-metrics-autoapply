@@ -23,7 +23,7 @@ func pull(args []string) {
 	flags := flag.NewFlagSet("pull", flag.ExitOnError)
 	workingDir := flags.String("working-dir", defaultWorkingDir, "The path to the working directory.")
 	userAgent := flags.String("user-agent", "gh-action-autoapply", "The user-agent to use when making requests against the API.")
-	writeSegments := flags.Bool("write-segments", true, "Optionally write a segments.json file to disk.")
+	writeSegments := flags.Bool("write-segments", false, "Optionally write a segments.json file to disk.")
 
 	err := flags.Parse(args)
 	if err != nil {
