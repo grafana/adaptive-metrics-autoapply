@@ -69,6 +69,10 @@ func applySegment(client *internal.Client, segment internal.Segment, dryRun bool
 
 	rules, err := readJSONFile[[]internal.Recommendation](filename)
 	if err != nil {
+		if os.IsNotExist(err) {
+			log.Printf("no recommendations found for segment %q", segment.Name)
+			return nil
+		}
 		return fmt.Errorf("failed to read rules: %w", err)
 	}
 
