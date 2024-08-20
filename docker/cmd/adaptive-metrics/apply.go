@@ -47,7 +47,7 @@ func apply(args []string) {
 
 	c := internal.NewClient(&http.Client{}, *userAgent, apiURL, apiKey)
 
-	segments, err := readJSONFile[[]internal.Segment]("segments.json")
+	segments, err := c.FetchSegments()
 	if err != nil {
 		log.Fatalf("failed to read segments: %v", err)
 	}
