@@ -79,7 +79,7 @@ func applySegment(client *internal.Client, segment internal.Segment, dryRun bool
 	log.Printf("applying segment %q num-rules=%d dry-run=%t", segment.Name, len(rules), dryRun)
 
 	if dryRun {
-		return nil
+		return client.ValidateRules(rules)
 	}
 
 	return client.UpdateRules(segment, rules)
@@ -94,7 +94,7 @@ func readJSONFile[T any](path string) (T, error) {
 
 	err = json.NewDecoder(file).Decode(&result)
 	if err != nil {
-		return result, nil
+		return result, err
 	}
 
 	return result, nil

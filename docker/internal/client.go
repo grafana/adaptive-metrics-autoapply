@@ -60,6 +60,30 @@ func (c *Client) FetchRecommendations(segment Segment, verbose bool) ([]Recommen
 	return recs, nil
 }
 
+func (c *Client) ValidateRules(rules []Recommendation) error {
+	buf, err := json.Marshal(rules)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.makeNewRequest(http.MethodPost, "aggregations/check-rules", nil, nil, bytes.NewReader(buf))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBuf, err := io.ReadAll(io.LimitReader(resp.Body, 1024))
+		if err != nil {
+			return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		}
+
+		return fmt.Errorf("unexpected status code: %d with body %q", resp.StatusCode, bodyBuf)
+	}
+
+	return nil
+}
+
 func (c *Client) UpdateRules(segment Segment, rules []Recommendation) error {
 	resp, err := c.makeNewRequest(http.MethodGet, "aggregations/rules", url.Values{
 		"segment": []string{segment.Identifier},
