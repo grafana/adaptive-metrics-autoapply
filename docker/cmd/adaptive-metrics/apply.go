@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -52,16 +53,41 @@ func apply(args []string) {
 		log.Fatalf("failed to read segments: %v", err)
 	}
 
+	output := os.Stdout
+	if summaryOutputPath := os.Getenv("GITHUB_STEP_SUMMARY"); summaryOutputPath != "" {
+		output, err = os.Open(summaryOutputPath)
+		if err != nil {
+			log.Fatalf("failed to open summary output file: %v", err)
+		}
+		defer output.Close()
+	}
+
+	totalChanges := 0
+	unchangedSegments := 0
 	segments = append(segments, internal.DefaultSegment)
 	for _, segment := range segments {
-		err := applySegment(c, segment, *dryRun)
+		changes, err := applySegment(output, c, segment, *dryRun)
 		if err != nil {
 			log.Fatalf("failed to apply segment %s: %v", segment.Name, err)
 		}
+
+		totalChanges += changes
+		if changes == 0 {
+			unchangedSegments++
+		}
+	}
+
+	if totalChanges == 0 {
+		fmt.Fprintln(output, "No changes detected in aggregation rules.")
+	} else {
+		fmt.Fprintln(output, "#### Summary")
+		fmt.Fprintf(output, "- %d changes detected in aggregation rules\n", totalChanges)
+		fmt.Fprintf(output, "- %d modified segments\n", len(segments)-unchangedSegments)
+		fmt.Fprintf(output, "- %d unmodified segments\n", unchangedSegments)
 	}
 }
 
-func applySegment(client *internal.Client, segment internal.Segment, dryRun bool) error {
+func applySegment(output io.Writer, client *internal.Client, segment internal.Segment, dryRun bool) (int, error) {
 	filename := fmt.Sprintf("recommendations-%s.json", segment.Name)
 	if segment == internal.DefaultSegment {
 		filename = "recommendations.json"
@@ -70,19 +96,28 @@ func applySegment(client *internal.Client, segment internal.Segment, dryRun bool
 	rules, err := readJSONFile[[]internal.Recommendation](filename)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return fmt.Errorf("failed to read rules: %w", err)
+			return 0, fmt.Errorf("failed to read rules: %w", err)
 		}
 		log.Printf("no rules found for segment %q", segment.Name)
 		rules = []internal.Recommendation{}
 	}
 
-	log.Printf("applying segment %q num-rules=%d dry-run=%t", segment.Name, len(rules), dryRun)
-
-	if dryRun {
-		return client.ValidateRules(rules)
+	err = client.ValidateRules(rules)
+	if err != nil {
+		return 0, fmt.Errorf("failed to validate rules: %w", err)
 	}
 
-	return client.UpdateRules(segment, rules)
+	currentState, etag, err := client.GetRules(segment)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get current rules: %w", err)
+	}
+
+	changes := writeDiff(output, segment, currentState, rules)
+
+	if !dryRun {
+		return changes, client.UpdateRules(segment, etag, rules)
+	}
+	return changes, nil
 }
 
 func readJSONFile[T any](path string) (T, error) {

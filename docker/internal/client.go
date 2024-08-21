@@ -84,26 +84,34 @@ func (c *Client) ValidateRules(rules []Recommendation) error {
 	return nil
 }
 
-func (c *Client) UpdateRules(segment Segment, rules []Recommendation) error {
+func (c *Client) GetRules(segment Segment) ([]Recommendation, string, error) {
 	resp, err := c.makeNewRequest(http.MethodGet, "aggregations/rules", url.Values{
 		"segment": []string{segment.Identifier},
 	}, nil, nil)
 	if err != nil {
-		return fmt.Errorf("failed to fetch existing rules: %w", err)
+		return nil, "", err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	etag := resp.Header.Get("ETag")
+	var rules []Recommendation
+	if err = json.NewDecoder(resp.Body).Decode(&rules); err != nil {
+		return nil, "", err
+	}
 
+	return rules, etag, nil
+}
+
+func (c *Client) UpdateRules(segment Segment, etag string, rules []Recommendation) error {
 	buf, err := json.Marshal(rules)
 	if err != nil {
 		return err
 	}
 
-	resp, err = c.makeNewRequest(http.MethodPost, "aggregations/rules", url.Values{
+	resp, err := c.makeNewRequest(http.MethodPost, "aggregations/rules", url.Values{
 		"segment": []string{segment.Identifier},
 	}, http.Header{"If-Match": []string{etag}}, bytes.NewReader(buf))
 	if err != nil {
