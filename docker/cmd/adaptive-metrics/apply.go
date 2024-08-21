@@ -62,7 +62,7 @@ func apply(args []string) {
 		defer output.Close()
 	}
 
-	actualOutput := io.MultiWriter(output, os.Stderr)
+	actualOutput := io.MultiWriter(output, os.Stdout)
 
 	totalChanges := 0
 	unchangedSegments := 0
