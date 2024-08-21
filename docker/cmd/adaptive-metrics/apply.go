@@ -55,7 +55,7 @@ func apply(args []string) {
 
 	output := os.Stdout
 	if summaryOutputPath := os.Getenv("GITHUB_STEP_SUMMARY"); summaryOutputPath != "" {
-		output, err = os.Open(summaryOutputPath)
+		output, err = os.OpenFile(summaryOutputPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
 			log.Fatalf("failed to open summary output file: %v", err)
 		}
