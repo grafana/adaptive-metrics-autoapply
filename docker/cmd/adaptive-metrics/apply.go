@@ -62,11 +62,13 @@ func apply(args []string) {
 		defer output.Close()
 	}
 
+	actualOutput := io.MultiWriter(output, os.Stderr)
+
 	totalChanges := 0
 	unchangedSegments := 0
 	segments = append(segments, internal.DefaultSegment)
 	for _, segment := range segments {
-		changes, err := applySegment(output, c, segment, *dryRun)
+		changes, err := applySegment(actualOutput, c, segment, *dryRun)
 		if err != nil {
 			log.Fatalf("failed to apply segment %s: %v", segment.Name, err)
 		}
@@ -78,12 +80,12 @@ func apply(args []string) {
 	}
 
 	if totalChanges == 0 {
-		fmt.Fprintln(output, "No changes detected in aggregation rules.")
+		fmt.Fprintln(actualOutput, "No changes detected in aggregation rules.")
 	} else {
-		fmt.Fprintln(output, "#### Summary")
-		fmt.Fprintf(output, "- %d changes detected in aggregation rules\n", totalChanges)
-		fmt.Fprintf(output, "- %d modified segments\n", len(segments)-unchangedSegments)
-		fmt.Fprintf(output, "- %d unmodified segments\n", unchangedSegments)
+		fmt.Fprintln(actualOutput, "#### Summary")
+		fmt.Fprintf(actualOutput, "- %d changes detected in aggregation rules\n", totalChanges)
+		fmt.Fprintf(actualOutput, "- %d modified segments\n", len(segments)-unchangedSegments)
+		fmt.Fprintf(actualOutput, "- %d unmodified segments\n", unchangedSegments)
 	}
 }
 
