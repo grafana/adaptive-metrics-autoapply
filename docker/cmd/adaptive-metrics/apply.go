@@ -115,8 +115,11 @@ func applySegment(output io.Writer, client *internal.Client, segment internal.Se
 	changes := writeDiff(output, segment, currentState, rules)
 
 	if !dryRun {
+		log.Printf("applying %d changes to segment %q", changes, segment.Name)
 		return changes, client.UpdateRules(segment, etag, rules)
 	}
+
+	log.Printf("detected %d changes to segment %q; skipping due to -dry-run flag", changes, segment.Name)
 	return changes, nil
 }
 
