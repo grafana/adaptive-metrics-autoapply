@@ -82,6 +82,14 @@ func apply(args []string) {
 	}
 
 	if totalChanges > 0 {
+
+		// Max summary size is 1MB, if we're close, then just write a summary.
+		if stepSummary.Len() > 900e3 {
+			stepSummary.Reset()
+
+			fmt.Fprintf(stepSummary, "Skipping detailed diff because it's too large (%d bytes)\n\n", stepSummary.Len())
+		}
+
 		fmt.Fprintln(stepSummary, "#### Summary")
 		fmt.Fprintf(stepSummary, "- %d changes detected in aggregation rules\n", totalChanges)
 		fmt.Fprintf(stepSummary, "- %d modified segments\n", changedSegments)
