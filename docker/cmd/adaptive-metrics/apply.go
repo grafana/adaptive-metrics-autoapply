@@ -71,15 +71,6 @@ func apply(args []string) {
 		totalChanges += changes
 	}
 
-	if totalChanges == 0 {
-		fmt.Fprintln(stepSummary, "No changes detected in aggregation rules.")
-	} else {
-		fmt.Fprintln(stepSummary, "#### Summary")
-		fmt.Fprintf(stepSummary, "- %d changes detected in aggregation rules\n", totalChanges)
-		fmt.Fprintf(stepSummary, "- %d modified segments\n", changedSegments)
-		fmt.Fprintf(stepSummary, "- %d unmodified segments\n", len(segments)-changedSegments)
-	}
-
 	gha, err := newGithubActionWorkflowCommands()
 	if err != nil {
 		log.Fatalf("failed to create GitHub Actions commands: %v", err)
@@ -90,9 +81,16 @@ func apply(args []string) {
 		log.Fatalf("failed to write changes-detected output: %v", err)
 	}
 
-	err = gha.writeStepSummary(stepSummary.String())
-	if err != nil {
-		log.Fatalf("failed to write step summary: %v", err)
+	if totalChanges > 0 {
+		fmt.Fprintln(stepSummary, "#### Summary")
+		fmt.Fprintf(stepSummary, "- %d changes detected in aggregation rules\n", totalChanges)
+		fmt.Fprintf(stepSummary, "- %d modified segments\n", changedSegments)
+		fmt.Fprintf(stepSummary, "- %d unmodified segments\n", len(segments)-changedSegments)
+
+		err = gha.writeStepSummary(stepSummary.String())
+		if err != nil {
+			log.Fatalf("failed to write step summary: %v", err)
+		}
 	}
 }
 
