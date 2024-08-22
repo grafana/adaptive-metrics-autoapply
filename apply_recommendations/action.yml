@@ -12,3 +12,6 @@ inputs:
   dry-run:
     default: 'false'
     description: 'Whether to apply the recommendations or just print a summary of changes.'
+outputs:
+  changes-detected:
+    description: 'Whether any changes were detected in the recommendations.'
