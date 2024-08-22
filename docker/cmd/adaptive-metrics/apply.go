@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -52,38 +53,46 @@ func apply(args []string) {
 	if err != nil {
 		log.Fatalf("failed to read segments: %v", err)
 	}
-
-	output := os.Stdout
-	if summaryOutputPath := os.Getenv("GITHUB_STEP_SUMMARY"); summaryOutputPath != "" {
-		output, err = os.OpenFile(summaryOutputPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
-		if err != nil {
-			log.Fatalf("failed to open summary output file: %v", err)
-		}
-		defer output.Close()
-	}
+	segments = append(segments, internal.DefaultSegment)
 
 	totalChanges := 0
-	unchangedSegments := 0
-	segments = append(segments, internal.DefaultSegment)
+	changedSegments := 0
+	stepSummary := new(bytes.Buffer)
+
 	for _, segment := range segments {
-		changes, err := applySegment(output, c, segment, *dryRun)
+		changes, err := applySegment(stepSummary, c, segment, *dryRun)
 		if err != nil {
 			log.Fatalf("failed to apply segment %s: %v", segment.Name, err)
 		}
 
-		totalChanges += changes
-		if changes == 0 {
-			unchangedSegments++
+		if changes > 0 {
+			changedSegments++
 		}
+		totalChanges += changes
 	}
 
 	if totalChanges == 0 {
-		fmt.Fprintln(output, "No changes detected in aggregation rules.")
+		fmt.Fprintln(stepSummary, "No changes detected in aggregation rules.")
 	} else {
-		fmt.Fprintln(output, "#### Summary")
-		fmt.Fprintf(output, "- %d changes detected in aggregation rules\n", totalChanges)
-		fmt.Fprintf(output, "- %d modified segments\n", len(segments)-unchangedSegments)
-		fmt.Fprintf(output, "- %d unmodified segments\n", unchangedSegments)
+		fmt.Fprintln(stepSummary, "#### Summary")
+		fmt.Fprintf(stepSummary, "- %d changes detected in aggregation rules\n", totalChanges)
+		fmt.Fprintf(stepSummary, "- %d modified segments\n", changedSegments)
+		fmt.Fprintf(stepSummary, "- %d unmodified segments\n", len(segments)-changedSegments)
+	}
+
+	gha, err := newGithubActionWorkflowCommands()
+	if err != nil {
+		log.Fatalf("failed to create GitHub Actions commands: %v", err)
+	}
+
+	err = gha.writeOutput("changes-detected", strconv.FormatBool(totalChanges > 0))
+	if err != nil {
+		log.Fatalf("failed to write changes-detected output: %v", err)
+	}
+
+	err = gha.writeStepSummary(stepSummary.String())
+	if err != nil {
+		log.Fatalf("failed to write step summary: %v", err)
 	}
 }
 
