@@ -21,7 +21,7 @@ func newGithubActionWorkflowCommands() (*githubActionWorkflowCommands, error) {
 		return nil, err
 	}
 
-	summaryFile, err := os.OpenFile(os.Getenv("GITHUB_STEP_SUMMARY"), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+	summaryFile, err := os.OpenFile(os.Getenv("GITHUB_STEP_SUMMARY"), os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return nil, err
 	}

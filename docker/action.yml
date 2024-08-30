@@ -10,3 +10,6 @@ inputs:
   dry-run:
     default: 'false'
     description: 'Whether to apply the recommendations or just print tf plan output.'
+  managed-by:
+    default: 'gh-action-autoapply'
+    description: 'The tag used to set the managed_by label on applied rules.'
