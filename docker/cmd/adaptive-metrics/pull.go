@@ -76,6 +76,12 @@ func pull(args []string) {
 			return 0
 		})
 
+		// Strip the managed_by field from the recommendations. This adds unnecessary noise to the files, and is overwritten when applying the rules anyway.
+		for i, r := range recs {
+			r.ManagedBy = ""
+			recs[i] = r
+		}
+
 		// Write the recommendations to a file.
 		var filename string
 		if segment == internal.DefaultSegment {

@@ -29,10 +29,16 @@ func apply(args []string) {
 		defaultWorkingDir = workingDirEnvVar
 	}
 
+	defaultManagedBy := "gh-action-autoapply"
+	if managedByEnvVar := os.Getenv("INPUT_MANAGED-BY"); managedByEnvVar != "" {
+		defaultManagedBy = managedByEnvVar
+	}
+
 	flags := flag.NewFlagSet("apply", flag.ExitOnError)
 	workingDir := flags.String("working-dir", defaultWorkingDir, "The path to the working directory.")
 	dryRun := flags.Bool("dry-run", defaultDryRun, "dry run; print changes but do not apply them")
 	userAgent := flags.String("user-agent", "gh-action-autoapply", "The user-agent to use when making requests against the API.")
+	managedBy := flags.String("managed-by", defaultManagedBy, "The tag to use when setting the managed_by field on rules.")
 
 	err := flags.Parse(args)
 	if err != nil {
@@ -60,7 +66,7 @@ func apply(args []string) {
 	stepSummary := new(bytes.Buffer)
 
 	for _, segment := range segments {
-		changes, err := applySegment(stepSummary, c, segment, *dryRun)
+		changes, err := applySegment(stepSummary, c, segment, *managedBy, *dryRun)
 		if err != nil {
 			log.Fatalf("failed to apply segment %s: %v", segment.Name, err)
 		}
@@ -75,6 +81,7 @@ func apply(args []string) {
 	if err != nil {
 		log.Fatalf("failed to create GitHub Actions commands: %v", err)
 	}
+	defer gha.close()
 
 	err = gha.writeOutput("changes-detected", strconv.FormatBool(totalChanges > 0))
 	if err != nil {
@@ -84,10 +91,9 @@ func apply(args []string) {
 	if totalChanges > 0 {
 
 		// Max summary size is 1MB, if we're close, then just write a summary.
-		if stepSummary.Len() > 900e3 {
+		if summaryLength := stepSummary.Len(); summaryLength > 900e3 {
 			stepSummary.Reset()
-
-			fmt.Fprintf(stepSummary, "Skipping detailed diff because it's too large (%d bytes)\n\n", stepSummary.Len())
+			fmt.Fprintf(stepSummary, "Skipping detailed diff because it's too large (%d bytes)\n\n", summaryLength)
 		}
 
 		fmt.Fprintln(stepSummary, "#### Summary")
@@ -102,7 +108,7 @@ func apply(args []string) {
 	}
 }
 
-func applySegment(output io.Writer, client *internal.Client, segment internal.Segment, dryRun bool) (int, error) {
+func applySegment(output io.Writer, client *internal.Client, segment internal.Segment, managedBy string, dryRun bool) (int, error) {
 	filename := fmt.Sprintf("recommendations-%s.json", segment.Name)
 	if segment == internal.DefaultSegment {
 		filename = "recommendations.json"
@@ -115,6 +121,11 @@ func applySegment(output io.Writer, client *internal.Client, segment internal.Se
 		}
 		log.Printf("no rules found for segment %q", segment.Name)
 		rules = []internal.Recommendation{}
+	}
+
+	for i, r := range rules {
+		r.ManagedBy = managedBy
+		rules[i] = r
 	}
 
 	err = client.ValidateRules(rules)
