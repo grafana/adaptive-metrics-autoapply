@@ -151,6 +151,9 @@ func totalSeriesForSegment(recs []internal.Recommendation) int {
 func seriesChangeForSegment(recs []internal.Recommendation) int {
 	var total int
 	for _, rec := range recs {
+		if rec.RecommendedAction == "keep" {
+			continue
+		}
 		total += rec.RecommendedSeriesCount - rec.CurrentSeriesCount
 	}
 	return total
