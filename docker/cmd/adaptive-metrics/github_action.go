@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 type githubActionWorkflowCommands struct {
@@ -45,6 +46,8 @@ func (c *githubActionWorkflowCommands) writeOutput(name, value string) error {
 	if c == nil {
 		return nil
 	}
+
+	name = strings.ReplaceAll(name, " ", "_")
 
 	_, err := fmt.Fprintf(c.outputFile, "%s=%s\n", name, value)
 	return err

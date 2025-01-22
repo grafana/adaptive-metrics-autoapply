@@ -17,7 +17,7 @@ type Segment struct {
 	FallbackToDefault bool   `json:"fallback_to_default,omitempty"`
 }
 
-type Recommendation struct {
+type RuleData struct {
 	Metric    string `json:"metric" yaml:"metric"`
 	MatchType string `json:"match_type,omitempty" yaml:"match_type,omitempty"`
 
@@ -32,6 +32,10 @@ type Recommendation struct {
 	Ingest bool `json:"ingest,omitempty" yaml:"ingest,omitempty"`
 
 	ManagedBy string `json:"managed_by,omitempty"`
+}
+
+type Recommendation struct {
+	RuleData
 
 	RecommendedAction  string `json:"recommended_action,omitempty"`
 	UsagesInRules      int    `json:"usages_in_rules,omitempty"`
@@ -39,7 +43,20 @@ type Recommendation struct {
 	UsagesInDashboards int    `json:"usages_in_dashboards,omitempty"`
 
 	// Used when recommended action is "add"
-	KeptLabels                   []string `json:"kept_labels,omitempty"`
-	TotalSeriesAfterAggregation  int      `json:"total_series_after_aggregation,omitempty"`
-	TotalSeriesBeforeAggregation int      `json:"total_series_before_aggregation,omitempty"`
+	KeptLabels []string `json:"kept_labels,omitempty"`
+
+	RawSeriesCount         int `json:"raw_series_count,omitempty"`         // Number of series the client is sending.
+	CurrentSeriesCount     int `json:"current_series_count,omitempty"`     // Number of series stored in the database.
+	RecommendedSeriesCount int `json:"recommended_series_count,omitempty"` // Number of series after applying the recommendation.
+}
+
+func ConvertVerboseToRules(recs []Recommendation) []RuleData {
+	rules := make([]RuleData, 0, len(recs))
+	for _, rec := range recs {
+		if rec.RecommendedAction == "remove" {
+			continue
+		}
+		rules = append(rules, rec.RuleData)
+	}
+	return rules
 }
