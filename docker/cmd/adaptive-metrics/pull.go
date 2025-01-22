@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
+	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/grafana/adaptive-metrics-autoapply/docker/internal"
@@ -52,9 +55,17 @@ func pull(args []string) {
 	// Add the default segment.
 	segments = append(segments, internal.DefaultSegment)
 
+	gha, err := newGithubActionWorkflowCommands()
+	if err != nil {
+		log.Fatalf("failed to create github action workflow commands: %v", err)
+	}
+
+	totalSeriesChange := 0
+	totalSeries := 0
+	output := new(strings.Builder)
 	for _, segment := range segments {
 		// Fetch recommendations for each segment.
-		recs, err := c.FetchRecommendations(segment, false)
+		recs, err := c.FetchRecommendations(segment, true)
 		if err != nil {
 			log.Fatalf("failed to fetch recommendations for segment %s: %v", segment.Name, err)
 		}
@@ -90,10 +101,99 @@ func pull(args []string) {
 			filename = fmt.Sprintf("recommendations-%s.json", segment.Name)
 		}
 		log.Printf("writing recommendations for segment %s to %s with %d rules", segment.Name, filename, len(recs))
-		err = writeJSONToFile(filepath.Join(*workingDir, filename), recs)
+		err = writeJSONToFile(filepath.Join(*workingDir, filename), internal.ConvertVerboseToRules(recs))
 		if err != nil {
 			log.Fatalf("failed to write recommendations for segment %s: %v", segment.Name, err)
 		}
+
+		writeChanges(output, segment, recs)
+
+		segmentChange := seriesChangeForSegment(recs)
+		err = gha.writeOutput(fmt.Sprintf("series-change-%s", segment.Name), strconv.Itoa(segmentChange))
+		if err != nil {
+			log.Fatalf("failed to write series-change output for segment %s: %v", segment.Name, err)
+		}
+
+		segmentTotal := totalSeriesForSegment(recs)
+		err = gha.writeOutput(fmt.Sprintf("series-total-%s", segment.Name), strconv.Itoa(segmentTotal))
+		if err != nil {
+			log.Fatalf("failed to write series-total output for segment %s: %v", segment.Name, err)
+		}
+
+		totalSeriesChange += segmentChange
+		totalSeries += segmentTotal
+	}
+
+	err = gha.writeOutput("series-change", strconv.Itoa(totalSeriesChange))
+	if err != nil {
+		log.Fatalf("failed to write series-change output: %v", err)
+	}
+
+	err = gha.writeOutput("series-total", strconv.Itoa(totalSeries))
+	if err != nil {
+		log.Fatalf("failed to write series-total output: %v", err)
+	}
+
+	err = gha.writeStepSummary(output.String())
+	if err != nil {
+		log.Fatalf("failed to write step summary: %v", err)
+	}
+}
+
+func totalSeriesForSegment(recs []internal.Recommendation) int {
+	var total int
+	for _, rec := range recs {
+		total += rec.CurrentSeriesCount
+	}
+	return total
+}
+
+func seriesChangeForSegment(recs []internal.Recommendation) int {
+	var total int
+	for _, rec := range recs {
+		total += rec.RecommendedSeriesCount - rec.CurrentSeriesCount
+	}
+	return total
+}
+
+func writeChanges(output io.Writer, segment internal.Segment, recs []internal.Recommendation) {
+	type change struct {
+		seriesChange int
+		action       string
+		metric       string
+	}
+
+	var changes []change
+	for _, rec := range recs {
+		if rec.RecommendedAction == "keep" {
+			continue
+		}
+		changes = append(changes, change{
+			seriesChange: rec.RecommendedSeriesCount - rec.CurrentSeriesCount,
+			action:       rec.RecommendedAction,
+			metric:       rec.Metric,
+		})
+	}
+
+	if len(changes) == 0 {
+		return
+	}
+
+	sort.Slice(changes, func(i, j int) bool {
+		return changes[i].seriesChange > changes[j].seriesChange
+	})
+
+	fmt.Fprintf(output, "## Segment %q\n", segment.Name)
+
+	fmt.Fprintf(output, "### Series Change\n")
+	fmt.Fprintf(output, "Total series change: %d\n", seriesChangeForSegment(recs))
+	fmt.Fprintf(output, "Total series: %d\n", totalSeriesForSegment(recs))
+	fmt.Fprintf(output, "Percentage change: %.2f%%\n", float64(seriesChangeForSegment(recs))/float64(totalSeriesForSegment(recs))*100)
+
+	fmt.Fprintln(output, "| Metric | Action | Series Change |")
+	fmt.Fprintln(output, "|--------|--------|---------------|")
+	for _, c := range changes {
+		fmt.Fprintf(output, "| %s | %s | %d |\n", c.metric, c.action, c.seriesChange)
 	}
 }
 
