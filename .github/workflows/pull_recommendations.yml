@@ -23,18 +23,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Pull recommendations
         uses: ./pull_recommendations
         id: pull_recommendations
       - name: Create pull request
         id: cpr
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.0.0
         with:
           title: Scheduled refresh of the latest recommendations.
           commit-message: Scheduled refresh of the latest recommendations.
           body: Scheduled refresh of the latest recommendations.
       - name: Enable pull request auto-merge
         if: ${{ steps.cpr.outputs.pull-request-operation == 'created' && env.GH_TOKEN != '' }}
-        run: gh pr merge --merge --auto "${{ steps.cpr.outputs.pull-request-number }}"
+        run: |
+          # Validate PR number is a positive integer
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Error: Invalid pull request number"
+            exit 1
+          fi
+          gh pr merge --merge --auto "$PR_NUMBER"
         env:
           GH_TOKEN: ${{ secrets.automerge_pat }}
+          PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
