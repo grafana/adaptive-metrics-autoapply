@@ -1,0 +1,18 @@
+name: Clean up orphaned branches
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+jobs:
+  cleanup-branches:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: grafana/shared-workflows/actions/cleanup-branches@c906affb19f070fde9dce56e0db8053c490946cc # cleanup-branches/v0.2.1
+        with:
+          dry-run: "true"
+
