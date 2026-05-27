@@ -3,7 +3,7 @@
 Use this template repository to set up auto-apply mode for Adaptive Metrics in Grafana Cloud.
 
 > [!NOTE]
-> Auto-apply mode for Adaptive Metrics is currently in [public preview](https://grafana.com/docs/release-life-cycle/). This feature is still under development and support is limited at this time.
+> [Server-side auto-apply mode for Adaptive Metrics](https://grafana.com/docs/grafana-cloud/cost-management-and-billing/adaptive-telemetry/adaptive-metrics/auto-apply/) is now available in [public preview](https://grafana.com/docs/release-life-cycle/). We encourage customers to use server-side auto-apply, as this is what Grafana Labs will be building upon going forward. Grafana Labs will plan to deprecate this version of auto-apply in the future.  
 
 ## What to expect
 
