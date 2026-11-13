@@ -30,7 +30,7 @@ jobs:
         id: pull_recommendations
       - name: Create pull request
         id: cpr
-        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.0.0
+        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
         with:
           title: Scheduled refresh of the latest recommendations.
           commit-message: Scheduled refresh of the latest recommendations.
